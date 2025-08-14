@@ -7,7 +7,6 @@ import TestimonialsSection from "./src/components/TestimonialsSection";
 import FaqSection from "./src/components/FaqSection";
 import FinalCTA from "./src/components/FinalCTA";
 
-
 export default function Home() {
   return (
     <>
@@ -27,11 +26,11 @@ export default function Home() {
       </Head>
       <Navbar />
       <HeroSection />
-      <CourseCard/>
-      <StepProcess/>
-      <TestimonialsSection/>
-      <FaqSection/>
-      <FinalCTA/>
+      <CourseCard />
+      <StepProcess />
+      <TestimonialsSection />
+      <FaqSection />
+      <FinalCTA />
     </>
   );
 }
