@@ -1,6 +1,7 @@
 // Este componente es la barra lateral del panel de administración.
 // Permite navegar entre las distintas vistas: crear curso, métricas, configuraciones, notificaciones, mensajes y ayuda.
 // Usa estado local para saber qué menú está activo y sombrearlo (SPA pura).
+// Este menú permite al instructor ver las imágenes que suben los alumnos, calificarlas y dejar retroalimentación.
 
 import { useState } from "react";
 import {
@@ -11,11 +12,12 @@ import {
   Bell,
   MessageCircle,
   HelpCircle,
+  FileImage
 } from "lucide-react";
 
 export default function SideBarAdmin({ setView }) {
   // Qué menú está activo (ninguno al inicio)
-  const [activeMenu, setActiveMenu] = useState(null); 
+  const [activeMenu, setActiveMenu] = useState(null);
 
   // Cambiar menú activo y vista principal
   const handleClick = (view) => {
@@ -43,39 +45,75 @@ export default function SideBarAdmin({ setView }) {
         {/* Menú principal */}
         <nav className="mt-6 space-y-2 px-4">
           {/* Crear curso */}
-          <div onClick={() => handleClick("create")} className={menuItemClasses("create")}>
+          <div
+            onClick={() => handleClick("create")}
+            className={menuItemClasses("create")}
+          >
             <BookPlus className="w-5 h-5 text-gray-700" />
-            <span className="text-sm font-medium text-gray-700">Crear curso</span>
+            <span className="text-sm font-medium text-gray-700">
+              Crear curso
+            </span>
           </div>
 
           {/* Métricas */}
-          <div onClick={() => handleClick("metrics")} className={menuItemClasses("metrics")}>
+          <div
+            onClick={() => handleClick("metrics")}
+            className={menuItemClasses("metrics")}
+          >
             <BarChart2 className="w-5 h-5 text-gray-700" />
             <span className="text-sm font-medium text-gray-700">Métricas</span>
           </div>
 
           {/* Configuraciones */}
-          <div onClick={() => handleClick("settings")} className={menuItemClasses("settings")}>
+          <div
+            onClick={() => handleClick("settings")}
+            className={menuItemClasses("settings")}
+          >
             <Settings className="w-5 h-5 text-gray-700" />
-            <span className="text-sm font-medium text-gray-700">Configuraciones</span>
+            <span className="text-sm font-medium text-gray-700">
+              Configuraciones
+            </span>
           </div>
 
           {/* Notificaciones */}
-          <div onClick={() => handleClick("notifications")} className={menuItemClasses("notifications")}>
+          <div
+            onClick={() => handleClick("notifications")}
+            className={menuItemClasses("notifications")}
+          >
             <Bell className="w-5 h-5 text-gray-700" />
-            <span className="text-sm font-medium text-gray-700">Notificaciones</span>
+            <span className="text-sm font-medium text-gray-700">
+              Notificaciones
+            </span>
           </div>
 
           {/* Mensajes */}
-          <div onClick={() => handleClick("messages")} className={menuItemClasses("messages")}>
+          <div
+            onClick={() => handleClick("messages")}
+            className={menuItemClasses("messages")}
+          >
             <MessageCircle className="w-5 h-5 text-gray-700" />
             <span className="text-sm font-medium text-gray-700">Mensajes</span>
           </div>
 
           {/* Guía de uso */}
-          <div onClick={() => handleClick("help")} className={menuItemClasses("help")}>
+          <div
+            onClick={() => handleClick("help")}
+            className={menuItemClasses("help")}
+          >
             <HelpCircle className="w-5 h-5 text-gray-700" />
-            <span className="text-sm font-medium text-gray-700">Guía de uso</span>
+            <span className="text-sm font-medium text-gray-700">
+              Guía de uso
+            </span>
+          </div>
+
+          <div
+            onClick={() => handleClick("evaluations")}
+            className={menuItemClasses("evaluations")}
+          >
+            <FileImage className="w-5 h-5 text-gray-700" />
+            <span className="text-sm font-medium text-gray-700">
+              Evaluaciones
+            </span>
           </div>
 
           {/* Cerrar sesión */}
@@ -84,7 +122,9 @@ export default function SideBarAdmin({ setView }) {
             className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 cursor-pointer"
           >
             <LogOut className="w-5 h-5 text-gray-700" />
-            <span className="text-sm font-medium text-gray-700">Cerrar sesión</span>
+            <span className="text-sm font-medium text-gray-700">
+              Cerrar sesión
+            </span>
           </div>
         </nav>
       </div>

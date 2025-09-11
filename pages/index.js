@@ -6,6 +6,7 @@ import StepProcess from "./src/components/StepProcess";
 import TestimonialsSection from "./src/components/TestimonialsSection";
 import FaqSection from "./src/components/FaqSection";
 import FinalCTA from "./src/components/FinalCTA";
+import NavbarLayout from "./src/layouts/NavbarLayout";
 
 export default function Home() {
   return (
@@ -24,7 +25,7 @@ export default function Home() {
         <meta charSet="UTF-8" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <Navbar />
+      <NavbarLayout />
       <HeroSection />
       <CourseCard />
       <StepProcess />

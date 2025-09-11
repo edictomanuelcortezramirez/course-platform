@@ -7,6 +7,7 @@ import SideBarAdmin from "./SideBarAdmin";
 import CreateCourse from "../../views/CreateCourse";
 import Metrics from "../../views/Metrics";
 import Settings from "../../views/Settings";
+import EvaluationsPanel from "../../views/EvaluationsPanel";
 
 export default function PanelAdmin() {
   // Guardamos la vista actual del panel
@@ -33,6 +34,7 @@ export default function PanelAdmin() {
         {view === "create" && <CreateCourse />} {/* Vista para crear curso */}
         {view === "metrics" && <Metrics />} {/* Vista de métricas */}
         {view === "settings" && <Settings />} {/* Vista de ajustes */}
+        {view === "evaluations" && <EvaluationsPanel />} {/* Vista de eveluaciones */}
       </main>
     </div>
   );
