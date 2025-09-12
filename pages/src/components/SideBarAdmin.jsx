@@ -12,11 +12,19 @@ import {
   Bell,
   MessageCircle,
   HelpCircle,
-  FileImage
+  FileImage,
 } from "lucide-react";
 
-export default function SideBarAdmin({ setView }) {
-  // Qué menú está activo (ninguno al inicio)
+export default function SidebarLayout({ setView }) {
+  // Usuario de prueba por defecto
+  const [user] = useState({
+    name: "Carlos",
+    lastName: "García",
+    role: "student", // Cambiar entre "student", "tutor" o "admin" para probar
+    loggedIn: true,
+  });
+
+  // Menú activo
   const [activeMenu, setActiveMenu] = useState(null);
 
   // Cambiar menú activo y vista principal
@@ -25,15 +33,58 @@ export default function SideBarAdmin({ setView }) {
     setView(view);
   };
 
-  // Clases para cada menú, sombreado si está activo
+  // Clases dinámicas para cada item
   const menuItemClasses = (view) =>
     `flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-colors ${
       activeMenu === view ? "bg-gray-200" : "hover:bg-gray-100"
     }`;
 
+  // Menús según rol
+  const getMenuItems = (role) => {
+    const baseItems = [
+      { view: "metrics", label: "Métricas", icon: <BarChart2 className="w-5 h-5 text-gray-700" /> },
+      { view: "settings", label: "Configuraciones", icon: <Settings className="w-5 h-5 text-gray-700" /> },
+      { view: "notifications", label: "Notificaciones", icon: <Bell className="w-5 h-5 text-gray-700" /> },
+      { view: "messages", label: "Mensajes", icon: <MessageCircle className="w-5 h-5 text-gray-700" /> },
+      { view: "help", label: "Guía de uso", icon: <HelpCircle className="w-5 h-5 text-gray-700" /> },
+      { view: "evaluations", label: "Evaluaciones", icon: <FileImage className="w-5 h-5 text-gray-700" /> },
+    ];
+
+    if (role === "admin") {
+      return [
+        { view: "create", label: "Crear curso", icon: <BookPlus className="w-5 h-5 text-gray-700" /> },
+        ...baseItems,
+      ];
+    }
+
+    if (role === "tutor") {
+      return baseItems;
+    }
+
+    if (role === "student") {
+      // Filtrar lo que corresponde a un alumno (ejemplo: sin métricas ni crear curso)
+      return baseItems.filter(
+        (item) =>
+          item.view === "notifications" ||
+          item.view === "messages" ||
+          item.view === "help" ||
+          item.view === "evaluations"
+      );
+    }
+
+    return [];
+  };
+
+  // Traducción de roles
+  const roleInSpanish = {
+    admin: "Administrador",
+    tutor: "Tutor",
+    student: "Estudiante",
+  };
+
   return (
     <aside className="w-64 h-screen bg-white shadow-lg flex flex-col justify-between">
-      {/* Sección superior */}
+      {/* Header */}
       <div>
         <div className="text-center py-6 border-b border-gray-200">
           <h1 className="text-2xl font-bold text-gray-800 tracking-widest">
@@ -42,81 +93,22 @@ export default function SideBarAdmin({ setView }) {
           <p className="text-sm text-gray-500">Aprende lo que amas</p>
         </div>
 
-        {/* Menú principal */}
+        {/* Dynamic Menu */}
         <nav className="mt-6 space-y-2 px-4">
-          {/* Crear curso */}
-          <div
-            onClick={() => handleClick("create")}
-            className={menuItemClasses("create")}
-          >
-            <BookPlus className="w-5 h-5 text-gray-700" />
-            <span className="text-sm font-medium text-gray-700">
-              Crear curso
-            </span>
-          </div>
+          {getMenuItems(user.role).map((item, idx) => (
+            <div
+              key={idx}
+              onClick={() => handleClick(item.view)}
+              className={menuItemClasses(item.view)}
+            >
+              {item.icon}
+              <span className="text-sm font-medium text-gray-700">
+                {item.label}
+              </span>
+            </div>
+          ))}
 
-          {/* Métricas */}
-          <div
-            onClick={() => handleClick("metrics")}
-            className={menuItemClasses("metrics")}
-          >
-            <BarChart2 className="w-5 h-5 text-gray-700" />
-            <span className="text-sm font-medium text-gray-700">Métricas</span>
-          </div>
-
-          {/* Configuraciones */}
-          <div
-            onClick={() => handleClick("settings")}
-            className={menuItemClasses("settings")}
-          >
-            <Settings className="w-5 h-5 text-gray-700" />
-            <span className="text-sm font-medium text-gray-700">
-              Configuraciones
-            </span>
-          </div>
-
-          {/* Notificaciones */}
-          <div
-            onClick={() => handleClick("notifications")}
-            className={menuItemClasses("notifications")}
-          >
-            <Bell className="w-5 h-5 text-gray-700" />
-            <span className="text-sm font-medium text-gray-700">
-              Notificaciones
-            </span>
-          </div>
-
-          {/* Mensajes */}
-          <div
-            onClick={() => handleClick("messages")}
-            className={menuItemClasses("messages")}
-          >
-            <MessageCircle className="w-5 h-5 text-gray-700" />
-            <span className="text-sm font-medium text-gray-700">Mensajes</span>
-          </div>
-
-          {/* Guía de uso */}
-          <div
-            onClick={() => handleClick("help")}
-            className={menuItemClasses("help")}
-          >
-            <HelpCircle className="w-5 h-5 text-gray-700" />
-            <span className="text-sm font-medium text-gray-700">
-              Guía de uso
-            </span>
-          </div>
-
-          <div
-            onClick={() => handleClick("evaluations")}
-            className={menuItemClasses("evaluations")}
-          >
-            <FileImage className="w-5 h-5 text-gray-700" />
-            <span className="text-sm font-medium text-gray-700">
-              Evaluaciones
-            </span>
-          </div>
-
-          {/* Cerrar sesión */}
+          {/* Logout */}
           <div
             onClick={() => alert("Cerrando sesión")}
             className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 cursor-pointer"
@@ -129,14 +121,16 @@ export default function SideBarAdmin({ setView }) {
         </nav>
       </div>
 
-      {/* Sección inferior con usuario */}
+      {/* Footer with user info */}
       <div className="flex items-center gap-3 p-4 border-t border-gray-200">
         <div className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-800 text-white font-bold">
-          G
+          {user.name[0]}
         </div>
         <div>
-          <p className="text-sm font-semibold text-gray-800">Gorjelis Garcia</p>
-          <p className="text-xs text-gray-500">Administrador</p>
+          <p className="text-sm font-semibold text-gray-800">
+            {user.name} {user.lastName}
+          </p>
+          <p className="text-xs text-gray-500">{roleInSpanish[user.role]}</p>
         </div>
       </div>
     </aside>
