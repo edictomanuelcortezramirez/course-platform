@@ -3,7 +3,7 @@
 // Estamos usando estado local (SPA pura) para cambiar la vista sin recargar la página.
 
 import { useState } from "react";
-import SideBarAdmin from "./SideBarAdmin";
+import SideBarAdmin from "./SideBarAdminLayout";
 import CreateCourse from "../../views/CreateCourse";
 import Metrics from "../../views/Metrics";
 import Settings from "../../views/Settings";
