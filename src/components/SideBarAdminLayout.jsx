@@ -20,7 +20,7 @@ export default function SidebarLayout({ setView }) {
   const [user] = useState({
     name: "Carlos",
     lastName: "García",
-    role: "student", // Cambiar entre "student", "tutor" o "admin" para probar
+    role: "student", 
     loggedIn: true,
   });
 
@@ -62,7 +62,7 @@ export default function SidebarLayout({ setView }) {
     }
 
     if (role === "student") {
-      // Filtrar lo que corresponde a un alumno (ejemplo: sin métricas ni crear curso)
+      // Filtrar lo que corresponde a un alumno 
       return baseItems.filter(
         (item) =>
           item.view === "notifications" ||

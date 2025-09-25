@@ -1,12 +1,11 @@
 import Head from "next/head";
-import Navbar from "./src/components/Navbar";
-import HeroSection from "./src/components/HeroSection";
-import CourseCard from "./src/components/CourseCard";
-import StepProcess from "./src/components/StepProcess";
-import TestimonialsSection from "./src/components/TestimonialsSection";
-import FaqSection from "./src/components/FaqSection";
-import FinalCTA from "./src/components/FinalCTA";
-import NavbarLayout from "./src/layouts/NavbarLayout";
+import HeroSection from "../src/components/HeroSection";
+import CourseCard from "../src/components/CourseCard";
+import StepProcess from "../src/components/StepProcess";
+import TestimonialsSection from "../src/components/TestimonialsSection";
+import FaqSection from "../src/components/FaqSection";
+import FinalCTA from "../src/components/FinalCTA";
+import NavbarLayout from "../src/layouts/NavbarLayout";
 
 export default function Home() {
   return (

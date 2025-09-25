@@ -7,6 +7,7 @@
 "use client";
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
+import { useRouter } from "next/router";
 
 export default function AuthForm({ type }) {
   const [formData, setFormData] = useState({
@@ -17,6 +18,7 @@ export default function AuthForm({ type }) {
   });
   const [message, setMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
 
   // Manejar cambios en inputs
   const handleChange = (e) => {
@@ -42,16 +44,17 @@ export default function AuthForm({ type }) {
         body: JSON.stringify(formData),
       });
 
-      let data;
-      try {
-        data = await res.json();
-      } catch {
-        throw new Error("Respuesta inválida del servidor");
-      }
-
+      const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Error en la petición");
 
       setMessage(data.message || "Operación exitosa ✅");
+
+      // Si es login, guardar usuario y redirigir
+      if (type === "login") {
+        localStorage.setItem("user", JSON.stringify(data.user));
+        // redirige al home
+        router.push("/"); 
+      }
     } catch (err) {
       setMessage(err.message);
     }
@@ -112,7 +115,7 @@ export default function AuthForm({ type }) {
                 className="w-full px-4 py-2 border border-gray-300 rounded bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-700"
               />
 
-              {/* Input contraseña con ojo */}
+              {/* Input contraseña */}
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}

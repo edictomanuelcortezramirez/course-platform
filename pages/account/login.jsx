@@ -1,4 +1,4 @@
-import AuthForm from "@/src/component/AuthForm";
+import AuthForm from "@/src/components/AuthForm";
 // sera llamado como prop en authform
 export default function LoginPage() {
   return <AuthForm type="login" />;

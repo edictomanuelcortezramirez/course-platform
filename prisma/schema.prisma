@@ -14,7 +14,7 @@ model User {
   email              String    @unique
   password           String
   role               String    @default("student") // student | tutor | admin
-  resetPasswordToken String?   // Para recuperación
+  resetPasswordToken String?   //  recuperación
   resetTokenExpiry   DateTime? // Expiración del token
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
