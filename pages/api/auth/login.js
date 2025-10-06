@@ -16,7 +16,7 @@ export default async function handler(req, res) {
         .json({ error: "Email y contraseña son obligatorios" });
     }
 
-    // Buscar usuario
+    // Buscar usuario en la BD
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
       return res.status(401).json({ error: "Credenciales incorrectas" });
@@ -28,13 +28,14 @@ export default async function handler(req, res) {
       return res.status(401).json({ error: "Credenciales incorrectas" });
     }
 
-    // Generar token JWT
+    // Generar token JWT con rol incluido
     const token = generateToken({
       id: user.id,
       email: user.email,
-      role: user.role,
+      role: user.role, // 👈 aseguramos que el rol quede en el token
     });
 
+    // Respuesta al cliente
     return res.status(200).json({
       message: "Inicio de sesión exitoso ✅",
       user: {
@@ -43,8 +44,8 @@ export default async function handler(req, res) {
         surname: user.surname,
         email: user.email,
         role: user.role,
-        token,
       },
+      token, // 👈 enviamos token separado para claridad
     });
   } catch (error) {
     console.error("❌ Error en login:", error);
