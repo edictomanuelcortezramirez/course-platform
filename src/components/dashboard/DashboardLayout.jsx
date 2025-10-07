@@ -27,7 +27,7 @@ export default function DashboardLayout({ user }) {
         {/* tutor */}
         {view === "dashboard" && <TutorDashboard />}
         {view === "myCourses" && <TutorCourses />}
-        {view === "createCourse" && <CreateCourse />}
+        {view === "createcourse" && <CreateCourse />}
         {view === "uploadLessons" && <UploadLessons />}
         {view === "studentReviews" && <StudentReviews />}
         {view === "messages" && <Messages />}

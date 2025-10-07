@@ -38,7 +38,7 @@ export default function SidebarLayout({ setView, role }) {
       return [
         { view: "dashboard", label: "Dashboard", icon: <GraduationCap /> },
         { view: "tutor-courses", label: "Mis cursos", icon: <BookOpen /> },
-        { view: "create-course", label: "Crear curso", icon: <BookPlus /> },
+        { view: "createcourse", label: "Crear curso", icon: <BookPlus /> },
         { view: "upload-lessons", label: "Subir lecciones", icon: <FileImage /> },
         { view: "student-reviews", label: "Evaluaciones de alumnos", icon: <ClipboardList /> },
         { view: "messages", label: "Mensajes", icon: <MessageCircle /> },

@@ -61,6 +61,8 @@ export default function CreateCourse() {
     setModules(updatedModules);
   };
 
+  const [showConfirm, setShowConfirm] = useState(false);
+
   return (
     <div>
       {/* Título principal y descripción */}
@@ -80,7 +82,10 @@ export default function CreateCourse() {
         <form className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Campos básicos del curso */}
           <div className="flex flex-col">
-            <label htmlFor="courseName" className="text-sm font-medium text-gray-600">
+            <label
+              htmlFor="courseName"
+              className="text-sm font-medium text-gray-600"
+            >
               Nombre del curso
             </label>
             <input
@@ -93,7 +98,10 @@ export default function CreateCourse() {
           </div>
 
           <div className="flex flex-col">
-            <label htmlFor="shortDescription" className="text-sm font-medium text-gray-600">
+            <label
+              htmlFor="shortDescription"
+              className="text-sm font-medium text-gray-600"
+            >
               Descripción (max 8 palabras)
             </label>
             <input
@@ -107,7 +115,10 @@ export default function CreateCourse() {
           </div>
 
           <div className="flex flex-col">
-            <label htmlFor="longDescription" className="text-sm font-medium text-gray-600">
+            <label
+              htmlFor="longDescription"
+              className="text-sm font-medium text-gray-600"
+            >
               Descripción larga
             </label>
             <textarea
@@ -120,7 +131,10 @@ export default function CreateCourse() {
 
           {/* Selecciones adicionales del curso */}
           <div className="flex flex-col">
-            <label htmlFor="accessType" className="text-sm font-medium text-gray-600">
+            <label
+              htmlFor="accessType"
+              className="text-sm font-medium text-gray-600"
+            >
               Modalidad de acceso
             </label>
             <select
@@ -134,7 +148,10 @@ export default function CreateCourse() {
           </div>
 
           <div className="flex flex-col">
-            <label htmlFor="certification" className="text-sm font-medium text-gray-600">
+            <label
+              htmlFor="certification"
+              className="text-sm font-medium text-gray-600"
+            >
               Certificación
             </label>
             <select
@@ -148,7 +165,10 @@ export default function CreateCourse() {
           </div>
 
           <div className="flex flex-col">
-            <label htmlFor="evaluation" className="text-sm font-medium text-gray-600">
+            <label
+              htmlFor="evaluation"
+              className="text-sm font-medium text-gray-600"
+            >
               Evaluación
             </label>
             <select
@@ -162,7 +182,10 @@ export default function CreateCourse() {
           </div>
 
           <div className="flex flex-col">
-            <label htmlFor="paymentType" className="text-sm font-medium text-gray-600">
+            <label
+              htmlFor="paymentType"
+              className="text-sm font-medium text-gray-600"
+            >
               Acceso
             </label>
             <select
@@ -176,7 +199,10 @@ export default function CreateCourse() {
           </div>
 
           <div className="flex flex-col">
-            <label htmlFor="language" className="text-sm font-medium text-gray-600">
+            <label
+              htmlFor="language"
+              className="text-sm font-medium text-gray-600"
+            >
               Idioma del curso
             </label>
             <input
@@ -189,7 +215,10 @@ export default function CreateCourse() {
           </div>
 
           <div className="flex flex-col">
-            <label htmlFor="updateDate" className="text-sm font-medium text-gray-600">
+            <label
+              htmlFor="updateDate"
+              className="text-sm font-medium text-gray-600"
+            >
               Fecha de actualización
             </label>
             <input
@@ -202,7 +231,10 @@ export default function CreateCourse() {
 
           {/* Imagen y precio */}
           <div className="flex flex-col">
-            <label htmlFor="courseImage" className="text-sm font-medium text-gray-600">
+            <label
+              htmlFor="courseImage"
+              className="text-sm font-medium text-gray-600"
+            >
               Imagen de la card del curso
             </label>
             <input
@@ -215,7 +247,10 @@ export default function CreateCourse() {
           </div>
 
           <div className="flex flex-col">
-            <label htmlFor="coursePrice" className="text-sm font-medium text-gray-600">
+            <label
+              htmlFor="coursePrice"
+              className="text-sm font-medium text-gray-600"
+            >
               Precio individual del curso
             </label>
             <input
@@ -257,7 +292,10 @@ export default function CreateCourse() {
 
               {/* Nombre del módulo */}
               <div className="mb-4">
-                <label htmlFor={`moduleName-${module.id}`} className="text-sm font-medium text-gray-600">
+                <label
+                  htmlFor={`moduleName-${module.id}`}
+                  className="text-sm font-medium text-gray-600"
+                >
                   Nombre del módulo
                 </label>
                 <input
@@ -305,14 +343,14 @@ export default function CreateCourse() {
                   <div className="flex items-center gap-2 mb-2">
                     <Video className="w-5 h-5 text-gray-700" />
                     <input
-                      type="file"
-                      accept="video/*"
+                      type="url"
+                      placeholder="Ingresa el enlace del video"
                       onChange={(e) =>
                         handleSectionChange(
                           moduleIndex,
                           sectionIndex,
                           "video",
-                          e.target.files[0]
+                          e.target.value
                         )
                       }
                       className="p-2 border border-gray-300 rounded w-full"
@@ -374,6 +412,49 @@ export default function CreateCourse() {
           </button>
         </div>
       </div>
+      {/* Botón para crear curso */}
+      <div className="mt-10 flex justify-center">
+        <button
+          type="button"
+          onClick={() => setShowConfirm(true)}
+          className="uppercase tracking-widest inline-block mt-2 px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+        >
+          Crear curso
+        </button>
+      </div>
+
+      {/* Modal de confirmación */}
+      {showConfirm && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl shadow-xl p-6 w-[90%] max-w-md">
+            <h2 className="text-lg font-semibold text-gray-800 mb-3 text-center">
+              ¿Deseas crear este curso?
+            </h2>
+            <p className="text-sm text-gray-500 text-center mb-6">
+              Una vez creado, podrás editar los detalles desde tu panel.
+            </p>
+
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={() => setShowConfirm(false)}
+                className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => {
+                  setShowConfirm(false);
+                  // se llama la función real de creación
+                  onConfirm?.();
+                }}
+                className="px-4 py-2 rounded bg-gray-600 hover:bg-gray-700 text-white font-medium"
+              >
+                Confirmar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
