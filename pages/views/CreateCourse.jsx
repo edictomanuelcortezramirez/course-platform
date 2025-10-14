@@ -1,51 +1,57 @@
-// Este componente sirve para crear un curso con sus características, módulos y secciones.
-// Podemos agregar módulos (máximo 3 por fila) y dentro de cada módulo agregar varias secciones.
-// También permite subir videos y documentos para cada sección.
-// Los botones nos permiten agregar o eliminar módulos y secciones de forma dinámica.
-
+"use client";
 import { useState } from "react";
 import { Video, FileText, PlusCircle, HelpCircle, X } from "lucide-react";
 
 export default function CreateCourse() {
-  // Guardamos todos los módulos del curso en un array (por defecto empieza con 1 módulo vacío)
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [price, setPrice] = useState("");
+  const [accessType, setAccessType] = useState("unlimited");
+  const [certification, setCertification] = useState(true);
+  const [evaluation, setEvaluation] = useState(true);
+  const [isPaid, setIsPaid] = useState(false);
+  const [language, setLanguage] = useState("");
+  const [updateDate, setUpdateDate] = useState("");
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState("");
+
   const [modules, setModules] = useState([
     {
-      id: 1,
+      id: Date.now(),
       name: "",
-      sections: [{ id: 1, name: "", video: null, documents: null }],
+      sections: [{ id: Date.now() + 1, name: "", video: "", documents: null }],
     },
   ]);
 
-  // Función para agregar un nuevo módulo
+  const [showConfirm, setShowConfirm] = useState(false);
+
+  // Funciones para módulos y secciones
   const addModule = () => {
     setModules([
       ...modules,
       {
-        id: Date.now(), // Generamos un id único para cada módulo
+        id: Date.now(),
         name: "",
-        sections: [{ id: 1, name: "", video: null, documents: null }],
+        sections: [{ id: Date.now() + 1, name: "", video: "", documents: null }],
       },
     ]);
   };
 
-  // Función para eliminar un módulo según su id
   const removeModule = (moduleId) => {
     setModules(modules.filter((m) => m.id !== moduleId));
   };
 
-  // Función para agregar una sección dentro de un módulo específico
   const addSection = (moduleIndex) => {
     const updatedModules = [...modules];
     updatedModules[moduleIndex].sections.push({
-      id: Date.now(), // Generamos un id único para la sección
+      id: Date.now(),
       name: "",
-      video: null,
+      video: "",
       documents: null,
     });
     setModules(updatedModules);
   };
 
-  // Función para eliminar una sección dentro de un módulo específico
   const removeSection = (moduleIndex, sectionId) => {
     const updatedModules = [...modules];
     updatedModules[moduleIndex].sections = updatedModules[
@@ -54,18 +60,70 @@ export default function CreateCourse() {
     setModules(updatedModules);
   };
 
-  // Función para actualizar el nombre, video o documento de una sección
   const handleSectionChange = (moduleIndex, sectionIndex, field, value) => {
     const updatedModules = [...modules];
     updatedModules[moduleIndex].sections[sectionIndex][field] = value;
     setModules(updatedModules);
   };
 
-  const [showConfirm, setShowConfirm] = useState(false);
+  const onConfirm = async () => {
+  let imageBase64 = "";
+
+  if (imageFile) {
+    const reader = new FileReader();
+    reader.readAsDataURL(imageFile);
+    reader.onloadend = async () => {
+      imageBase64 = reader.result;
+
+      await sendCourse(imageBase64);
+    };
+  } else {
+    await sendCourse("");
+  }
+};
+const token = localStorage.getItem("token");
+const sendCourse = async (imageData) => {
+  try {
+    const response = await fetch("/api/courses/create", {
+  method: "POST",
+  headers: { 
+    "Content-Type": "application/json",
+    Authorization: token ? `Bearer ${token}` : "",
+  },
+  body: JSON.stringify({
+    title,
+    description,
+    price: parseFloat(price) || 0,
+    image: imageData,
+    modules,
+    accessType,
+    hasCertificate: certification,
+    hasEvaluation: evaluation,
+    isPaid,
+    language,
+    updateDate,
+  }),
+});
+
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      alert(`Error: ${data.error}`);
+      return;
+    }
+
+    alert("Curso creado con éxito");
+    window.location.href = `pages/views/TutorCourses.jsx`;
+  } catch (err) {
+    console.error(err);
+    alert("Error inesperado al crear curso.");
+  }
+};
+
 
   return (
-    <div>
-      {/* Título principal y descripción */}
+    <div className="p-6 max-w-7xl mx-auto">
       <h2 className="text-xl font-bold text-gray-800">Crear Curso</h2>
       <p className="mt-2 text-gray-600 flex items-center gap-1">
         Aquí podrás agregar un nuevo curso y sus lecciones. Consulta nuestra
@@ -73,73 +131,48 @@ export default function CreateCourse() {
         <span className="text-sm font-medium text-gray-700">Guía de uso</span>
       </p>
 
-      {/* Bloque con las características generales del curso */}
+      {/* Formulario*/}
       <div className="mt-6 p-6 bg-white rounded-2xl shadow-md">
         <h3 className="text-lg font-semibold text-gray-700 mb-4">
           Características del Curso
         </h3>
 
         <form className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Campos básicos del curso */}
+          {/* Nombre */}
           <div className="flex flex-col">
-            <label
-              htmlFor="courseName"
-              className="text-sm font-medium text-gray-600"
-            >
+            <label className="text-sm font-medium text-gray-600">
               Nombre del curso
             </label>
             <input
               type="text"
-              id="courseName"
-              name="courseName"
               placeholder="Nombre del curso"
               className="mt-1 p-2 border border-gray-300 rounded"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
             />
           </div>
 
+          {/* Descripción */}
           <div className="flex flex-col">
-            <label
-              htmlFor="shortDescription"
-              className="text-sm font-medium text-gray-600"
-            >
-              Descripción (max 8 palabras)
-            </label>
-            <input
-              type="text"
-              id="shortDescription"
-              name="shortDescription"
-              placeholder="Descripción breve"
-              className="mt-1 p-2 border border-gray-300 rounded"
-              maxLength={50}
-            />
-          </div>
-
-          <div className="flex flex-col">
-            <label
-              htmlFor="longDescription"
-              className="text-sm font-medium text-gray-600"
-            >
+            <label className="text-sm font-medium text-gray-600">
               Descripción larga
             </label>
             <textarea
-              id="longDescription"
-              name="longDescription"
               placeholder="Describe el curso en detalle..."
-              className="mt-1 p-2 border border-gray-300 rounded resize-none h-24"
+              className="mt-1 p-2 border border-gray-300 rounded resize-none h-10"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
             />
           </div>
 
-          {/* Selecciones adicionales del curso */}
+          {/* Acceso */}
           <div className="flex flex-col">
-            <label
-              htmlFor="accessType"
-              className="text-sm font-medium text-gray-600"
-            >
+            <label className="text-sm font-medium text-gray-600">
               Modalidad de acceso
             </label>
             <select
-              id="accessType"
-              name="accessType"
+              value={accessType}
+              onChange={(e) => setAccessType(e.target.value)}
               className="mt-1 p-2 border border-gray-300 rounded"
             >
               <option value="unlimited">Acceso ilimitado</option>
@@ -147,16 +180,12 @@ export default function CreateCourse() {
             </select>
           </div>
 
+          {/* Certificado */}
           <div className="flex flex-col">
-            <label
-              htmlFor="certification"
-              className="text-sm font-medium text-gray-600"
-            >
-              Certificación
-            </label>
+            <label className="text-sm font-medium text-gray-600">Certificación</label>
             <select
-              id="certification"
-              name="certification"
+              value={certification ? "certified" : "nonCertified"}
+              onChange={(e) => setCertification(e.target.value === "certified")}
               className="mt-1 p-2 border border-gray-300 rounded"
             >
               <option value="certified">Certificado</option>
@@ -164,16 +193,12 @@ export default function CreateCourse() {
             </select>
           </div>
 
+          {/* Evaluación */}
           <div className="flex flex-col">
-            <label
-              htmlFor="evaluation"
-              className="text-sm font-medium text-gray-600"
-            >
-              Evaluación
-            </label>
+            <label className="text-sm font-medium text-gray-600">Evaluación</label>
             <select
-              id="evaluation"
-              name="evaluation"
+              value={evaluation ? "evaluated" : "notEvaluated"}
+              onChange={(e) => setEvaluation(e.target.value === "evaluated")}
               className="mt-1 p-2 border border-gray-300 rounded"
             >
               <option value="evaluated">Evaluado</option>
@@ -181,16 +206,12 @@ export default function CreateCourse() {
             </select>
           </div>
 
+          {/* Pago */}
           <div className="flex flex-col">
-            <label
-              htmlFor="paymentType"
-              className="text-sm font-medium text-gray-600"
-            >
-              Acceso
-            </label>
+            <label className="text-sm font-medium text-gray-600">Acceso</label>
             <select
-              id="paymentType"
-              name="paymentType"
+              value={isPaid ? "paid" : "free"}
+              onChange={(e) => setIsPaid(e.target.value === "paid")}
               className="mt-1 p-2 border border-gray-300 rounded"
             >
               <option value="free">Gratis</option>
@@ -198,221 +219,164 @@ export default function CreateCourse() {
             </select>
           </div>
 
+          {/* Idioma */}
           <div className="flex flex-col">
-            <label
-              htmlFor="language"
-              className="text-sm font-medium text-gray-600"
-            >
-              Idioma del curso
-            </label>
+            <label className="text-sm font-medium text-gray-600">Idioma del curso</label>
             <input
               type="text"
-              id="language"
-              name="language"
               placeholder="Ej: Español"
               className="mt-1 p-2 border border-gray-300 rounded"
+              value={language}
+              onChange={(e) => setLanguage(e.target.value)}
             />
           </div>
 
+          {/* Fecha de actualización */}
           <div className="flex flex-col">
-            <label
-              htmlFor="updateDate"
-              className="text-sm font-medium text-gray-600"
-            >
-              Fecha de actualización
-            </label>
+            <label className="text-sm font-medium text-gray-600">Fecha de actualización</label>
             <input
               type="date"
-              id="updateDate"
-              name="updateDate"
               className="mt-1 p-2 border border-gray-300 rounded"
+              value={updateDate}
+              onChange={(e) => setUpdateDate(e.target.value)}
             />
           </div>
 
-          {/* Imagen y precio */}
+          {/* Imagen */}
           <div className="flex flex-col">
-            <label
-              htmlFor="courseImage"
-              className="text-sm font-medium text-gray-600"
-            >
-              Imagen de la card del curso
-            </label>
+            <label className="text-sm font-medium text-gray-600">Imagen de la card del curso</label>
             <input
               type="file"
-              id="courseImage"
-              name="courseImage"
               accept="image/*"
               className="mt-1 p-2 border border-gray-300 rounded"
+              onChange={(e) => {
+                const file = e.target.files[0];
+                setImageFile(file);
+                setImagePreview(URL.createObjectURL(file));
+              }}
             />
           </div>
 
+          {/* Precio */}
           <div className="flex flex-col">
-            <label
-              htmlFor="coursePrice"
-              className="text-sm font-medium text-gray-600"
-            >
-              Precio individual del curso
-            </label>
+            <label className="text-sm font-medium text-gray-600">Precio individual del curso</label>
             <input
               type="number"
-              id="coursePrice"
-              name="coursePrice"
               placeholder="Precio en USD"
               className="mt-1 p-2 border border-gray-300 rounded"
               min="0"
               step="0.01"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
             />
           </div>
         </form>
       </div>
 
-      {/* Contenedor de módulos */}
-      <div className="mt-8">
-        <div className="flex flex-wrap gap-6">
-          {modules.map((module, moduleIndex) => (
-            <div
-              key={module.id}
-              className="relative p-6 bg-white rounded-2xl shadow-md w-[calc(33.333%-1rem)]"
-            >
-              {/* Botón para eliminar módulo, solo si no es el primero */}
-              {moduleIndex > 0 && (
-                <button
-                  type="button"
-                  onClick={() => removeModule(module.id)}
-                  className="absolute top-3 right-3 w-8 h-8 rounded-full bg-gray-800 text-white flex items-center justify-center hover:bg-gray-600 transition"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              )}
-
-              {/* Título del módulo */}
-              <h3 className="text-lg font-semibold text-gray-700 mb-4">
-                {moduleIndex + 1}º Módulo
-              </h3>
-
-              {/* Nombre del módulo */}
-              <div className="mb-4">
-                <label
-                  htmlFor={`moduleName-${module.id}`}
-                  className="text-sm font-medium text-gray-600"
-                >
-                  Nombre del módulo
-                </label>
-                <input
-                  type="text"
-                  id={`moduleName-${module.id}`}
-                  name="moduleName"
-                  placeholder="Nombre del módulo"
-                  className="mt-1 p-2 border border-gray-300 rounded w-full"
-                />
-              </div>
-
-              {/* Secciones */}
-              <h4 className="text-md font-semibold text-gray-700 mb-2">
-                Secciones del módulo
-              </h4>
-
-              {module.sections.map((section, sectionIndex) => (
-                <div
-                  key={section.id}
-                  className="mb-4 border p-4 rounded-lg relative"
-                >
-                  {/* Nombre de la sección */}
-                  <div className="flex flex-col mb-2">
-                    <label className="text-sm font-medium text-gray-600 flex justify-between items-center">
-                      <span>Nombre de la sección</span>
-                      <span>({sectionIndex + 1})</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={section.name}
-                      onChange={(e) =>
-                        handleSectionChange(
-                          moduleIndex,
-                          sectionIndex,
-                          "name",
-                          e.target.value
-                        )
-                      }
-                      placeholder="Nombre de la sección"
-                      className="mt-1 p-2 border border-gray-300 rounded"
-                    />
-                  </div>
-
-                  {/* Subir video */}
-                  <div className="flex items-center gap-2 mb-2">
-                    <Video className="w-5 h-5 text-gray-700" />
-                    <input
-                      type="url"
-                      placeholder="Ingresa el enlace del video"
-                      onChange={(e) =>
-                        handleSectionChange(
-                          moduleIndex,
-                          sectionIndex,
-                          "video",
-                          e.target.value
-                        )
-                      }
-                      className="p-2 border border-gray-300 rounded w-full"
-                    />
-                  </div>
-
-                  {/* Subir documentos */}
-                  <div className="flex items-center gap-2">
-                    <FileText className="w-5 h-5 text-gray-700" />
-                    <input
-                      type="file"
-                      onChange={(e) =>
-                        handleSectionChange(
-                          moduleIndex,
-                          sectionIndex,
-                          "documents",
-                          e.target.files[0]
-                        )
-                      }
-                      className="p-2 border border-gray-300 rounded w-full"
-                    />
-                  </div>
-
-                  {/* Botón para eliminar sección: solo aparece en la última sección si hay más de una */}
-                  {sectionIndex === module.sections.length - 1 &&
-                    module.sections.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => removeSection(moduleIndex, section.id)}
-                        className="absolute -bottom-9 -right-0.5 w-7 h-7 rounded-full bg-gray-800 text-white flex items-center justify-center hover:bg-gray-600 transition"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    )}
-                </div>
-              ))}
-
-              {/* Botón para agregar sección */}
+      {/* Módulos */}
+      <div className="mt-8 flex flex-wrap gap-6">
+        {modules.map((module, moduleIndex) => (
+          <div
+            key={module.id}
+            className="relative p-6 bg-white rounded-2xl shadow-md w-[calc(33.333%-1rem)]"
+          >
+            {moduleIndex > 0 && (
               <button
                 type="button"
-                onClick={() => addSection(moduleIndex)}
-                className="mt-2 px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+                onClick={() => removeModule(module.id)}
+                className="absolute top-3 right-3 w-8 h-8 rounded-full bg-gray-800 text-white flex items-center justify-center hover:bg-gray-600 transition"
               >
-                Agregar sección
+                <X className="w-4 h-4" />
               </button>
-            </div>
-          ))}
+            )}
 
-          {/* Botón para agregar un nuevo módulo */}
-          <button
-            type="button"
-            onClick={addModule}
-            className="p-6 bg-gray-100 rounded-2xl border-2 border-dashed border-gray-400 flex flex-col items-center justify-center w-[calc(33.333%-1rem)] hover:bg-gray-200"
-          >
-            <PlusCircle className="w-8 h-8 text-gray-600" />
-            <span className="mt-2 text-gray-700 font-medium">
-              Agregar módulo
-            </span>
-          </button>
-        </div>
+            <h3 className="text-lg font-semibold text-gray-700 mb-4">{moduleIndex + 1}º Módulo</h3>
+
+            <div className="mb-4">
+              <label className="text-sm font-medium text-gray-600">Nombre del módulo</label>
+              <input
+                type="text"
+                placeholder="Nombre del módulo"
+                className="mt-1 p-2 border border-gray-300 rounded w-full"
+              />
+            </div>
+
+            <h4 className="text-md font-semibold text-gray-700 mb-2">Secciones del módulo</h4>
+            {module.sections.map((section, sectionIndex) => (
+              <div key={section.id} className="mb-4 border p-4 rounded-lg relative">
+                <div className="flex flex-col mb-2">
+                  <label className="text-sm font-medium text-gray-600 flex justify-between items-center">
+                    <span>Nombre de la sección</span>
+                    <span>({sectionIndex + 1})</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={section.name}
+                    onChange={(e) =>
+                      handleSectionChange(moduleIndex, sectionIndex, "name", e.target.value)
+                    }
+                    placeholder="Nombre de la sección"
+                    className="mt-1 p-2 border border-gray-300 rounded"
+                  />
+                </div>
+
+                <div className="flex items-center gap-2 mb-2">
+                  <Video className="w-5 h-5 text-gray-700" />
+                  <input
+                    type="url"
+                    placeholder="Ingresa el enlace del video"
+                    value={section.video}
+                    onChange={(e) =>
+                      handleSectionChange(moduleIndex, sectionIndex, "video", e.target.value)
+                    }
+                    className="p-2 border border-gray-300 rounded w-full"
+                  />
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-gray-700" />
+                  <input
+                    type="file"
+                    onChange={(e) =>
+                      handleSectionChange(moduleIndex, sectionIndex, "documents", e.target.files[0])
+                    }
+                    className="p-2 border border-gray-300 rounded w-full"
+                  />
+                </div>
+
+                {sectionIndex === module.sections.length - 1 && module.sections.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => removeSection(moduleIndex, section.id)}
+                    className="absolute -bottom-9 -right-0.5 w-7 h-7 rounded-full bg-gray-800 text-white flex items-center justify-center hover:bg-gray-600 transition"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+            ))}
+
+            <button
+              type="button"
+              onClick={() => addSection(moduleIndex)}
+              className="mt-2 px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+            >
+              Agregar sección
+            </button>
+          </div>
+        ))}
+
+        <button
+          type="button"
+          onClick={addModule}
+          className="p-6 bg-gray-100 rounded-2xl border-2 border-dashed border-gray-400 flex flex-col items-center justify-center w-[calc(33.333%-1rem)] hover:bg-gray-200"
+        >
+          <PlusCircle className="w-8 h-8 text-gray-600" />
+          <span className="mt-2 text-gray-700 font-medium">Agregar módulo</span>
+        </button>
       </div>
-      {/* Botón para crear curso */}
+
+      {/* Botón crear curso */}
       <div className="mt-10 flex justify-center">
         <button
           type="button"
@@ -444,7 +408,6 @@ export default function CreateCourse() {
               <button
                 onClick={() => {
                   setShowConfirm(false);
-                  // se llama la función real de creación
                   onConfirm?.();
                 }}
                 className="px-4 py-2 rounded bg-gray-600 hover:bg-gray-700 text-white font-medium"

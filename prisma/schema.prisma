@@ -18,4 +18,56 @@ model User {
   resetTokenExpiry   DateTime? // Expiración del token
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
+
+   courses            Course[]  @relation("InstructorCourses")
+  purchases          Purchase[]
+}
+
+model Course {
+  id            Int       @id @default(autoincrement())
+  title         String
+  description   String?
+  price         Float
+  image         String?
+  accessType    String?   // "ilimitado" o "temporal"
+  hasCertificate Boolean  @default(false)
+  hasEvaluation Boolean  @default(false)
+  isPaid        Boolean   @default(false)
+  isPublished   Boolean   @default(false)
+  instructorId Int
+  instructor  User      @relation(fields: [instructorId], references: [id], name: "InstructorCourses")
+  modules     Module[]
+  purchases   Purchase[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Module {
+  id        Int      @id @default(autoincrement())
+  title     String
+  order     Int?
+  courseId  Int
+  course    Course   @relation(fields: [courseId], references: [id])
+  sections  Section[]
+}
+
+model Section {
+  id        Int      @id @default(autoincrement())
+  title     String
+  order     Int?
+  videoUrl  String?   // enlace protegido o id de MUX en producción
+  material  String?   // enlace a documento
+  moduleId  Int
+  module    Module    @relation(fields: [moduleId], references: [id])
+}
+
+model Purchase {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  courseId  Int
+  status    String   @default("completed") // pending, completed, failed
+  createdAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id])
+  course Course @relation(fields: [courseId], references: [id])
 }

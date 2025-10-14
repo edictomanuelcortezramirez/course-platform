@@ -45,15 +45,20 @@ export default function AuthForm({ type }) {
       });
 
       const data = await res.json();
+      console.log("Respuesta del backend:", data);
+
       if (!res.ok) throw new Error(data.error || "Error en la petición");
 
-      setMessage(data.message || "Operación exitosa ✅");
+      setMessage(data.message || "Operación exitosa");
 
       // Si es login, guardar usuario y redirigir
       if (type === "login") {
         localStorage.setItem("user", JSON.stringify(data.user));
+        //guarda el token
+        localStorage.setItem("token", data.token);
+        console.log("Token guardado:", data.token);
         // redirige al home
-        router.push("/"); 
+        router.push("/");
       }
     } catch (err) {
       setMessage(err.message);

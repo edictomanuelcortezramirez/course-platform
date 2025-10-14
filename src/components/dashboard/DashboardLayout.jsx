@@ -8,6 +8,8 @@ import MyCourses from "@/pages/views/MyCourses";
 import Certificates from "@/pages/views/Certificates";
 import Messages from "@/pages/views/Messages";
 import Support from "@/pages/views/Support";
+import TutorCourses from "@/pages/views/TutorCourses";
+
 
 export default function DashboardLayout({ user }) {
   const [view, setView] = useState("metrics");
@@ -26,7 +28,7 @@ export default function DashboardLayout({ user }) {
         
         {/* tutor */}
         {view === "dashboard" && <TutorDashboard />}
-        {view === "myCourses" && <TutorCourses />}
+        {view === "tutorcourses" && <TutorCourses />}
         {view === "createcourse" && <CreateCourse />}
         {view === "uploadLessons" && <UploadLessons />}
         {view === "studentReviews" && <StudentReviews />}

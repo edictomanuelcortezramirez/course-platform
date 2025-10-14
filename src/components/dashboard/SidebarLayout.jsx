@@ -37,7 +37,7 @@ export default function SidebarLayout({ setView, role }) {
     if (role === "tutor") {
       return [
         { view: "dashboard", label: "Dashboard", icon: <GraduationCap /> },
-        { view: "tutor-courses", label: "Mis cursos", icon: <BookOpen /> },
+        { view: "tutorcourses", label: "Mis cursos", icon: <BookOpen /> },
         { view: "createcourse", label: "Crear curso", icon: <BookPlus /> },
         { view: "upload-lessons", label: "Subir lecciones", icon: <FileImage /> },
         { view: "student-reviews", label: "Evaluaciones de alumnos", icon: <ClipboardList /> },
