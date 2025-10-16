@@ -2,19 +2,48 @@ import { getUserFromRequest } from "../../../libs/auth";
 import prisma from "../../../libs/prisma";
 
 export default async function handler(req, res) {
-  if (req.method !== "POST") return res.status(405).json({ error: "Método no permitido" });
+  if (req.method !== "POST")
+    return res.status(405).json({ error: "Método no permitido" });
 
   try {
     const user = await getUserFromRequest(req);
-    if (!user) return res.status(401).json({ error: "No autenticado" });
+
+    if (!user) {
+      return res.status(401).json({ error: "No autenticado" });
+    }
 
     const {
-      title, description, price, image,
-      modules, accessType, hasCertificate,
-      hasEvaluation, isPaid, language, updateDate
+      title,
+      description,
+      price,
+      image,
+      modules,
+      accessType,
+      hasCertificate,
+      hasEvaluation,
+      isPaid,
+      language,
+      updateDate,
     } = req.body;
 
-    if (!title || !price) return res.status(400).json({ error: "Título y precio son obligatorios" });
+    if (!title || !price) {
+      return res
+        .status(400)
+        .json({ error: "Título y precio son obligatorios" });
+    }
+
+    const formattedModules = (modules || []).map((m, i) => ({
+      title: m.title || m.name || `Módulo ${i + 1}`,
+      order: i + 1,
+      sections: {
+        create: (m.sections || []).map((s, j) => ({
+          title: s.name || `Sección ${j + 1}`,
+          order: j + 1,
+          videoUrl: s.video ?? null,
+          material: s.material ?? null,
+        })),
+      },
+    }));
 
     const course = await prisma.course.create({
       data: {
@@ -26,21 +55,12 @@ export default async function handler(req, res) {
         hasCertificate,
         hasEvaluation,
         isPaid,
-        instructorId: user.id, // dinámico según el usuario autenticado
+        instructorId: user.id,
         isPublished: true,
+        language,
+        updateDate: updateDate ? new Date(updateDate) : null,
         modules: {
-          create: (modules || []).map((m, i) => ({
-            title: m.name || `Módulo ${i + 1}`,
-            order: i + 1,
-            sections: {
-              create: (m.sections || []).map((s, j) => ({
-                title: s.name || `Sección ${j + 1}`,
-                order: j + 1,
-                videoUrl: s.video ?? null,
-                material: s.documents ?? null,
-              })),
-            },
-          })),
+          create: formattedModules,
         },
       },
       include: { modules: { include: { sections: true } } },
@@ -48,7 +68,8 @@ export default async function handler(req, res) {
 
     return res.status(200).json({ success: true, course });
   } catch (err) {
-    console.error("Error creando curso:", err);
-    return res.status(500).json({ error: "Error interno del servidor" });
+    return res
+      .status(500)
+      .json({ error: "Error interno del servidor", details: err.message });
   }
 }

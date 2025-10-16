@@ -26,7 +26,6 @@ export default function CourseViewer() {
     ],
   };
 
-
   const [openModules, setOpenModules] = useState([]);
 
   const toggleModule = (index) => {

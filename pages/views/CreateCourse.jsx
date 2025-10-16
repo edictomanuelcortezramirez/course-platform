@@ -19,20 +19,19 @@ export default function CreateCourse() {
     {
       id: Date.now(),
       name: "",
-      sections: [{ id: Date.now() + 1, name: "", video: "", documents: null }],
+      sections: [{ id: Date.now() + 1, name: "", video: "", material: null }],
     },
   ]);
 
   const [showConfirm, setShowConfirm] = useState(false);
 
-  // Funciones para módulos y secciones
   const addModule = () => {
     setModules([
       ...modules,
       {
         id: Date.now(),
         name: "",
-        sections: [{ id: Date.now() + 1, name: "", video: "", documents: null }],
+        sections: [{ id: Date.now() + 1, name: "", video: "", material: null }],
       },
     ]);
   };
@@ -47,7 +46,7 @@ export default function CreateCourse() {
       id: Date.now(),
       name: "",
       video: "",
-      documents: null,
+      material: null,
     });
     setModules(updatedModules);
   };
@@ -67,60 +66,60 @@ export default function CreateCourse() {
   };
 
   const onConfirm = async () => {
-  let imageBase64 = "";
+    let imageBase64 = "";
 
-  if (imageFile) {
-    const reader = new FileReader();
-    reader.readAsDataURL(imageFile);
-    reader.onloadend = async () => {
-      imageBase64 = reader.result;
-
-      await sendCourse(imageBase64);
-    };
-  } else {
-    await sendCourse("");
-  }
-};
-const token = localStorage.getItem("token");
-const sendCourse = async (imageData) => {
-  try {
-    const response = await fetch("/api/courses/create", {
-  method: "POST",
-  headers: { 
-    "Content-Type": "application/json",
-    Authorization: token ? `Bearer ${token}` : "",
-  },
-  body: JSON.stringify({
-    title,
-    description,
-    price: parseFloat(price) || 0,
-    image: imageData,
-    modules,
-    accessType,
-    hasCertificate: certification,
-    hasEvaluation: evaluation,
-    isPaid,
-    language,
-    updateDate,
-  }),
-});
-
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      alert(`Error: ${data.error}`);
-      return;
+    if (imageFile) {
+      const reader = new FileReader();
+      reader.readAsDataURL(imageFile);
+      reader.onloadend = async () => {
+        imageBase64 = reader.result;
+        await sendCourse(imageBase64);
+      };
+    } else {
+      await sendCourse("");
     }
+  };
 
-    alert("Curso creado con éxito");
-    window.location.href = `pages/views/TutorCourses.jsx`;
-  } catch (err) {
-    console.error(err);
-    alert("Error inesperado al crear curso.");
-  }
-};
+  const token = localStorage.getItem("token");
 
+  const sendCourse = async (imageData) => {
+    const payload = {
+      title,
+      description,
+      price: parseFloat(price) || 0,
+      image: imageData,
+      modules,
+      accessType,
+      hasCertificate: certification,
+      hasEvaluation: evaluation,
+      isPaid,
+      language,
+      updateDate,
+    };
+
+    try {
+      const response = await fetch("/api/courses/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : "",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(`Error: ${data.error}`);
+        return;
+      }
+
+      alert("Curso creado con éxito");
+      window.location.href = "/pages/views/tutorcourses";
+    } catch (err) {
+      alert("Error inesperado al crear curso.");
+    }
+  };
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
@@ -131,14 +130,12 @@ const sendCourse = async (imageData) => {
         <span className="text-sm font-medium text-gray-700">Guía de uso</span>
       </p>
 
-      {/* Formulario*/}
       <div className="mt-6 p-6 bg-white rounded-2xl shadow-md">
         <h3 className="text-lg font-semibold text-gray-700 mb-4">
           Características del Curso
         </h3>
 
         <form className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Nombre */}
           <div className="flex flex-col">
             <label className="text-sm font-medium text-gray-600">
               Nombre del curso
@@ -152,7 +149,6 @@ const sendCourse = async (imageData) => {
             />
           </div>
 
-          {/* Descripción */}
           <div className="flex flex-col">
             <label className="text-sm font-medium text-gray-600">
               Descripción larga
@@ -165,7 +161,6 @@ const sendCourse = async (imageData) => {
             />
           </div>
 
-          {/* Acceso */}
           <div className="flex flex-col">
             <label className="text-sm font-medium text-gray-600">
               Modalidad de acceso
@@ -180,9 +175,10 @@ const sendCourse = async (imageData) => {
             </select>
           </div>
 
-          {/* Certificado */}
           <div className="flex flex-col">
-            <label className="text-sm font-medium text-gray-600">Certificación</label>
+            <label className="text-sm font-medium text-gray-600">
+              Certificación
+            </label>
             <select
               value={certification ? "certified" : "nonCertified"}
               onChange={(e) => setCertification(e.target.value === "certified")}
@@ -193,9 +189,10 @@ const sendCourse = async (imageData) => {
             </select>
           </div>
 
-          {/* Evaluación */}
           <div className="flex flex-col">
-            <label className="text-sm font-medium text-gray-600">Evaluación</label>
+            <label className="text-sm font-medium text-gray-600">
+              Evaluación
+            </label>
             <select
               value={evaluation ? "evaluated" : "notEvaluated"}
               onChange={(e) => setEvaluation(e.target.value === "evaluated")}
@@ -206,7 +203,6 @@ const sendCourse = async (imageData) => {
             </select>
           </div>
 
-          {/* Pago */}
           <div className="flex flex-col">
             <label className="text-sm font-medium text-gray-600">Acceso</label>
             <select
@@ -219,9 +215,10 @@ const sendCourse = async (imageData) => {
             </select>
           </div>
 
-          {/* Idioma */}
           <div className="flex flex-col">
-            <label className="text-sm font-medium text-gray-600">Idioma del curso</label>
+            <label className="text-sm font-medium text-gray-600">
+              Idioma del curso
+            </label>
             <input
               type="text"
               placeholder="Ej: Español"
@@ -231,9 +228,10 @@ const sendCourse = async (imageData) => {
             />
           </div>
 
-          {/* Fecha de actualización */}
           <div className="flex flex-col">
-            <label className="text-sm font-medium text-gray-600">Fecha de actualización</label>
+            <label className="text-sm font-medium text-gray-600">
+              Fecha de actualización
+            </label>
             <input
               type="date"
               className="mt-1 p-2 border border-gray-300 rounded"
@@ -242,9 +240,10 @@ const sendCourse = async (imageData) => {
             />
           </div>
 
-          {/* Imagen */}
           <div className="flex flex-col">
-            <label className="text-sm font-medium text-gray-600">Imagen de la card del curso</label>
+            <label className="text-sm font-medium text-gray-600">
+              Imagen de la card del curso
+            </label>
             <input
               type="file"
               accept="image/*"
@@ -257,9 +256,10 @@ const sendCourse = async (imageData) => {
             />
           </div>
 
-          {/* Precio */}
           <div className="flex flex-col">
-            <label className="text-sm font-medium text-gray-600">Precio individual del curso</label>
+            <label className="text-sm font-medium text-gray-600">
+              Precio individual del curso
+            </label>
             <input
               type="number"
               placeholder="Precio en USD"
@@ -273,7 +273,6 @@ const sendCourse = async (imageData) => {
         </form>
       </div>
 
-      {/* Módulos */}
       <div className="mt-8 flex flex-wrap gap-6">
         {modules.map((module, moduleIndex) => (
           <div
@@ -290,20 +289,35 @@ const sendCourse = async (imageData) => {
               </button>
             )}
 
-            <h3 className="text-lg font-semibold text-gray-700 mb-4">{moduleIndex + 1}º Módulo</h3>
+            <h3 className="text-lg font-semibold text-gray-700 mb-4">
+              {moduleIndex + 1}º Módulo
+            </h3>
 
             <div className="mb-4">
-              <label className="text-sm font-medium text-gray-600">Nombre del módulo</label>
+              <label className="text-sm font-medium text-gray-600">
+                Nombre del módulo
+              </label>
               <input
                 type="text"
+                value={module.title}
+                onChange={(e) => {
+                  const updatedModules = [...modules];
+                  updatedModules[moduleIndex].title = e.target.value;
+                  setModules(updatedModules);
+                }}
                 placeholder="Nombre del módulo"
                 className="mt-1 p-2 border border-gray-300 rounded w-full"
               />
             </div>
 
-            <h4 className="text-md font-semibold text-gray-700 mb-2">Secciones del módulo</h4>
+            <h4 className="text-md font-semibold text-gray-700 mb-2">
+              Secciones del módulo
+            </h4>
             {module.sections.map((section, sectionIndex) => (
-              <div key={section.id} className="mb-4 border p-4 rounded-lg relative">
+              <div
+                key={section.id}
+                className="mb-4 border p-4 rounded-lg relative"
+              >
                 <div className="flex flex-col mb-2">
                   <label className="text-sm font-medium text-gray-600 flex justify-between items-center">
                     <span>Nombre de la sección</span>
@@ -313,7 +327,12 @@ const sendCourse = async (imageData) => {
                     type="text"
                     value={section.name}
                     onChange={(e) =>
-                      handleSectionChange(moduleIndex, sectionIndex, "name", e.target.value)
+                      handleSectionChange(
+                        moduleIndex,
+                        sectionIndex,
+                        "name",
+                        e.target.value
+                      )
                     }
                     placeholder="Nombre de la sección"
                     className="mt-1 p-2 border border-gray-300 rounded"
@@ -327,7 +346,12 @@ const sendCourse = async (imageData) => {
                     placeholder="Ingresa el enlace del video"
                     value={section.video}
                     onChange={(e) =>
-                      handleSectionChange(moduleIndex, sectionIndex, "video", e.target.value)
+                      handleSectionChange(
+                        moduleIndex,
+                        sectionIndex,
+                        "video",
+                        e.target.value
+                      )
                     }
                     className="p-2 border border-gray-300 rounded w-full"
                   />
@@ -336,23 +360,31 @@ const sendCourse = async (imageData) => {
                 <div className="flex items-center gap-2">
                   <FileText className="w-5 h-5 text-gray-700" />
                   <input
-                    type="file"
+                    type="url"
+                    placeholder="Enlace del material (PDF, Drive, etc.)"
+                    value={section.material || ""}
                     onChange={(e) =>
-                      handleSectionChange(moduleIndex, sectionIndex, "documents", e.target.files[0])
+                      handleSectionChange(
+                        moduleIndex,
+                        sectionIndex,
+                        "material",
+                        e.target.value
+                      )
                     }
                     className="p-2 border border-gray-300 rounded w-full"
                   />
                 </div>
 
-                {sectionIndex === module.sections.length - 1 && module.sections.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => removeSection(moduleIndex, section.id)}
-                    className="absolute -bottom-9 -right-0.5 w-7 h-7 rounded-full bg-gray-800 text-white flex items-center justify-center hover:bg-gray-600 transition"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                )}
+                {sectionIndex === module.sections.length - 1 &&
+                  module.sections.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeSection(moduleIndex, section.id)}
+                      className="absolute -bottom-9 -right-0.5 w-7 h-7 rounded-full bg-gray-800 text-white flex items-center justify-center hover:bg-gray-600 transition"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
               </div>
             ))}
 
@@ -376,7 +408,6 @@ const sendCourse = async (imageData) => {
         </button>
       </div>
 
-      {/* Botón crear curso */}
       <div className="mt-10 flex justify-center">
         <button
           type="button"
@@ -387,7 +418,6 @@ const sendCourse = async (imageData) => {
         </button>
       </div>
 
-      {/* Modal de confirmación */}
       {showConfirm && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl shadow-xl p-6 w-[90%] max-w-md">

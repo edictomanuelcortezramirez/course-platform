@@ -11,6 +11,7 @@ import {
   MessageCircle,
   BookPlus,
   Shield,
+  LogOut,
 } from "lucide-react";
 
 export default function SidebarLayout({ setView, role }) {
@@ -19,6 +20,11 @@ export default function SidebarLayout({ setView, role }) {
   const handleClick = (view) => {
     setActiveMenu(view);
     setView(view);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    window.location.href = "/";
   };
 
   const getMenuItems = (role) => {
@@ -62,8 +68,11 @@ export default function SidebarLayout({ setView, role }) {
   };
 
   return (
-    <aside className="w-64 bg-white shadow-lg flex flex-col justify-between">
-      <nav className="mt-6 space-y-2 px-4">
+    <aside className="w-64 bg-white shadow-lg flex flex-col justify-between h-full">
+      <div className="px-6 py-4 border-b border-gray-200">
+        <div className="text-2xl font-bold text-gray-800 text-star">Lunéa</div>
+      </div>
+      <nav className="mt-6 space-y-2 px-4 flex-1">
         {getMenuItems(role).map((item) => (
           <div
             key={item.view}
@@ -77,6 +86,15 @@ export default function SidebarLayout({ setView, role }) {
           </div>
         ))}
       </nav>
+      <div className="border-t border-gray-200 p-4">
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-2 text-gray-700 hover:text-red-600 transition-colors w-full"
+        >
+          <LogOut className="w-5 h-5" />
+          <span className="text-sm font-medium">Cerrar sesión</span>
+        </button>
+      </div>
     </aside>
   );
 }

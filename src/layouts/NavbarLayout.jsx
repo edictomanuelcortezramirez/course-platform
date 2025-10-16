@@ -80,7 +80,7 @@ const NavbarLayout = () => {
           <div className="relative">
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="flex items-center bg-black text-white px-4 py-2 rounded"
+              className="flex items-center bg-black text-white px-4 py-2 rounded capitalize"
             >
               {getRoleIcon(user.role)}
               {user.name}

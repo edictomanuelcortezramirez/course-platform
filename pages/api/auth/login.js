@@ -48,7 +48,7 @@ export default async function handler(req, res) {
         role: user.role,
       },
       token, 
-      //enviamos token separado para claridad
+      //se envia token separado para claridad
     });
   } catch (error) {
     console.error("Error en login:", error);
