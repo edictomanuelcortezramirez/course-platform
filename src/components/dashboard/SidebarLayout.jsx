@@ -46,7 +46,7 @@ export default function SidebarLayout({ setView, role }) {
         { view: "tutorcourses", label: "Mis cursos", icon: <BookOpen /> },
         { view: "createcourse", label: "Crear curso", icon: <BookPlus /> },
         { view: "upload-lessons", label: "Subir lecciones", icon: <FileImage /> },
-        { view: "student-reviews", label: "Evaluaciones de alumnos", icon: <ClipboardList /> },
+        { view: "studentReviews", label: "Evaluaciones de alumnos", icon: <ClipboardList /> },
         { view: "messages", label: "Mensajes", icon: <MessageCircle /> },
         { view: "settings", label: "Configuración", icon: <Settings /> },
       ];

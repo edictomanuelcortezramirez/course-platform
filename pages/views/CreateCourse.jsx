@@ -1,8 +1,11 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Video, FileText, PlusCircle, HelpCircle, X } from "lucide-react";
 
-export default function CreateCourse() {
+export default function CreateCourse({
+  existingCourse = null,
+  isEditing = false,
+}) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
@@ -14,24 +17,65 @@ export default function CreateCourse() {
   const [updateDate, setUpdateDate] = useState("");
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
-
-  const [modules, setModules] = useState([
-    {
-      id: Date.now(),
-      name: "",
-      sections: [{ id: Date.now() + 1, name: "", video: "", material: null }],
-    },
-  ]);
-
+  const [modules, setModules] = useState([]);
   const [showConfirm, setShowConfirm] = useState(false);
 
+  // Cargar datos si se está editando
+  useEffect(() => {
+    if (existingCourse) {
+      setTitle(existingCourse.title || "");
+      setDescription(existingCourse.description || "");
+      setPrice(existingCourse.price || "");
+      setAccessType(existingCourse.accessType || "unlimited");
+      setCertification(existingCourse.hasCertificate ?? true);
+      setEvaluation(existingCourse.hasEvaluation ?? true);
+      setIsPaid(existingCourse.isPaid ?? false);
+      setLanguage(existingCourse.language || "");
+      setUpdateDate(
+        existingCourse.updateDate ? existingCourse.updateDate.split("T")[0] : ""
+      );
+      setImagePreview(existingCourse.image || "");
+
+      // Map correcto de módulos y secciones
+      const mappedModules = existingCourse.modules?.map((m) => ({
+        id: m.id || Date.now() + Math.random(),
+        name: m.title || "",
+        sections: m.sections?.map((s) => ({
+          id: s.id || Date.now() + Math.random(),
+          name: s.title || "",
+          video: s.videoUrl || "",
+          material: s.material || "",
+        })) || [
+          { id: Date.now() + Math.random(), name: "", video: "", material: "" },
+        ],
+      })) || [
+        {
+          id: Date.now(),
+          name: "",
+          sections: [{ id: Date.now() + 1, name: "", video: "", material: "" }],
+        },
+      ];
+
+      setModules(mappedModules);
+    } else {
+      setModules([
+        {
+          id: Date.now(),
+          name: "",
+          sections: [{ id: Date.now() + 1, name: "", video: "", material: "" }],
+        },
+      ]);
+    }
+  }, [existingCourse]);
+
+  // ➕ Funciones de manejo de módulos y secciones
   const addModule = () => {
     setModules([
       ...modules,
       {
         id: Date.now(),
         name: "",
-        sections: [{ id: Date.now() + 1, name: "", video: "", material: null }],
+        sections: [{ id: Date.now() + 1, name: "", video: "", material: "" }],
       },
     ]);
   };
@@ -46,7 +90,7 @@ export default function CreateCourse() {
       id: Date.now(),
       name: "",
       video: "",
-      material: null,
+      material: "",
     });
     setModules(updatedModules);
   };
@@ -65,6 +109,7 @@ export default function CreateCourse() {
     setModules(updatedModules);
   };
 
+  //Confirmación de envío
   const onConfirm = async () => {
     let imageBase64 = "";
 
@@ -76,18 +121,20 @@ export default function CreateCourse() {
         await sendCourse(imageBase64);
       };
     } else {
-      await sendCourse("");
+      await sendCourse(imagePreview);
     }
   };
 
-  const token = localStorage.getItem("token");
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
+  //Envío al backend
   const sendCourse = async (imageData) => {
     const payload = {
       title,
       description,
       price: parseFloat(price) || 0,
-      image: imageData,
+      image: imageData || "",
       modules,
       accessType,
       hasCertificate: certification,
@@ -98,8 +145,13 @@ export default function CreateCourse() {
     };
 
     try {
-      const response = await fetch("/api/courses/create", {
-        method: "POST",
+      const endpoint = isEditing
+        ? `/api/courses/${existingCourse.id}`
+        : "/api/courses/create";
+      const method = isEditing ? "PUT" : "POST";
+
+      const response = await fetch(endpoint, {
+        method,
         headers: {
           "Content-Type": "application/json",
           Authorization: token ? `Bearer ${token}` : "",
@@ -108,24 +160,28 @@ export default function CreateCourse() {
       });
 
       const data = await response.json();
-
       if (!response.ok) {
         alert(`Error: ${data.error}`);
         return;
       }
 
-      alert("Curso creado con éxito");
+      alert(
+        isEditing ? "Curso actualizado con éxito" : "Curso creado con éxito"
+      );
       window.location.href = "/pages/views/tutorcourses";
     } catch (err) {
-      alert("Error inesperado al crear curso.");
+      alert("Error inesperado al guardar curso.");
     }
   };
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
-      <h2 className="text-xl font-bold text-gray-800">Crear Curso</h2>
+      <h2 className="text-xl font-bold text-gray-800">
+        {isEditing ? "Editar curso" : "Crear curso"}
+      </h2>
       <p className="mt-2 text-gray-600 flex items-center gap-1">
-        Aquí podrás agregar un nuevo curso y sus lecciones. Consulta nuestra
+        Aquí podrás {isEditing ? "editar" : "agregar"} un curso y sus lecciones.
+        Consulta nuestra
         <HelpCircle className="w-5 h-5 text-gray-700 inline-block" />
         <span className="text-sm font-medium text-gray-700">Guía de uso</span>
       </p>
@@ -136,6 +192,7 @@ export default function CreateCourse() {
         </h3>
 
         <form className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Título */}
           <div className="flex flex-col">
             <label className="text-sm font-medium text-gray-600">
               Nombre del curso
@@ -149,6 +206,7 @@ export default function CreateCourse() {
             />
           </div>
 
+          {/* Descripción */}
           <div className="flex flex-col">
             <label className="text-sm font-medium text-gray-600">
               Descripción larga
@@ -161,6 +219,7 @@ export default function CreateCourse() {
             />
           </div>
 
+          {/* Modalidad */}
           <div className="flex flex-col">
             <label className="text-sm font-medium text-gray-600">
               Modalidad de acceso
@@ -175,6 +234,7 @@ export default function CreateCourse() {
             </select>
           </div>
 
+          {/* Certificación */}
           <div className="flex flex-col">
             <label className="text-sm font-medium text-gray-600">
               Certificación
@@ -189,6 +249,7 @@ export default function CreateCourse() {
             </select>
           </div>
 
+          {/* Evaluación */}
           <div className="flex flex-col">
             <label className="text-sm font-medium text-gray-600">
               Evaluación
@@ -203,6 +264,7 @@ export default function CreateCourse() {
             </select>
           </div>
 
+          {/* Pago */}
           <div className="flex flex-col">
             <label className="text-sm font-medium text-gray-600">Acceso</label>
             <select
@@ -215,6 +277,7 @@ export default function CreateCourse() {
             </select>
           </div>
 
+          {/* Idioma */}
           <div className="flex flex-col">
             <label className="text-sm font-medium text-gray-600">
               Idioma del curso
@@ -228,6 +291,7 @@ export default function CreateCourse() {
             />
           </div>
 
+          {/* Fecha */}
           <div className="flex flex-col">
             <label className="text-sm font-medium text-gray-600">
               Fecha de actualización
@@ -240,6 +304,7 @@ export default function CreateCourse() {
             />
           </div>
 
+          {/* Imagen */}
           <div className="flex flex-col">
             <label className="text-sm font-medium text-gray-600">
               Imagen de la card del curso
@@ -256,6 +321,7 @@ export default function CreateCourse() {
             />
           </div>
 
+          {/* Precio */}
           <div className="flex flex-col">
             <label className="text-sm font-medium text-gray-600">
               Precio individual del curso
@@ -273,6 +339,7 @@ export default function CreateCourse() {
         </form>
       </div>
 
+      {/* Módulos y Secciones */}
       <div className="mt-8 flex flex-wrap gap-6">
         {modules.map((module, moduleIndex) => (
           <div
@@ -299,10 +366,10 @@ export default function CreateCourse() {
               </label>
               <input
                 type="text"
-                value={module.title}
+                value={module.name}
                 onChange={(e) => {
                   const updatedModules = [...modules];
-                  updatedModules[moduleIndex].title = e.target.value;
+                  updatedModules[moduleIndex].name = e.target.value;
                   setModules(updatedModules);
                 }}
                 placeholder="Nombre del módulo"
@@ -313,11 +380,13 @@ export default function CreateCourse() {
             <h4 className="text-md font-semibold text-gray-700 mb-2">
               Secciones del módulo
             </h4>
+
             {module.sections.map((section, sectionIndex) => (
               <div
                 key={section.id}
                 className="mb-4 border p-4 rounded-lg relative"
               >
+                {/* Nombre de sección */}
                 <div className="flex flex-col mb-2">
                   <label className="text-sm font-medium text-gray-600 flex justify-between items-center">
                     <span>Nombre de la sección</span>
@@ -339,6 +408,7 @@ export default function CreateCourse() {
                   />
                 </div>
 
+                {/* Video */}
                 <div className="flex items-center gap-2 mb-2">
                   <Video className="w-5 h-5 text-gray-700" />
                   <input
@@ -357,6 +427,7 @@ export default function CreateCourse() {
                   />
                 </div>
 
+                {/* Material */}
                 <div className="flex items-center gap-2">
                   <FileText className="w-5 h-5 text-gray-700" />
                   <input
@@ -375,6 +446,7 @@ export default function CreateCourse() {
                   />
                 </div>
 
+                {/* Botón eliminar sección */}
                 {sectionIndex === module.sections.length - 1 &&
                   module.sections.length > 1 && (
                     <button
@@ -408,13 +480,14 @@ export default function CreateCourse() {
         </button>
       </div>
 
+      {/* Confirmación */}
       <div className="mt-10 flex justify-center">
         <button
           type="button"
           onClick={() => setShowConfirm(true)}
           className="uppercase tracking-widest inline-block mt-2 px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
         >
-          Crear curso
+          {isEditing ? "Guardar cambios" : "Crear curso"}
         </button>
       </div>
 
@@ -422,27 +495,33 @@ export default function CreateCourse() {
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl shadow-xl p-6 w-[90%] max-w-md">
             <h2 className="text-lg font-semibold text-gray-800 mb-3 text-center">
-              ¿Deseas crear este curso?
+              {isEditing
+                ? "¿Deseas guardar los cambios de este curso?"
+                : "¿Deseas crear este curso?"}
             </h2>
             <p className="text-sm text-gray-500 text-center mb-6">
-              Una vez creado, podrás editar los detalles desde tu panel.
+              {isEditing
+                ? "Se actualizarán los datos del curso seleccionado."
+                : "Una vez creado, podrás editar los detalles desde tu panel."}
             </p>
 
             <div className="flex justify-center gap-4">
               <button
                 onClick={() => setShowConfirm(false)}
-                className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium"
+                className="px-4 py-2 mt-2 rounded tracking-widest bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium"
               >
                 Cancelar
               </button>
+
               <button
-                onClick={() => {
+                type="button"
+                onClick={async () => {
                   setShowConfirm(false);
-                  onConfirm?.();
+                  await onConfirm();
                 }}
-                className="px-4 py-2 rounded bg-gray-600 hover:bg-gray-700 text-white font-medium"
+                className=" tracking-widest inline-block mt-2 px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
               >
-                Confirmar
+                {isEditing ? "Guardar cambios" : "Crear curso"}
               </button>
             </div>
           </div>

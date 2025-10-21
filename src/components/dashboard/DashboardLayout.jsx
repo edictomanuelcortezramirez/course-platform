@@ -31,7 +31,7 @@ export default function DashboardLayout({ user }) {
         {view === "tutorcourses" && <TutorCourses />}
         {view === "createcourse" && <CreateCourse />}
         {view === "uploadLessons" && <UploadLessons />}
-        {view === "studentReviews" && <StudentReviews />}
+        {view === "studentReviews" && <EvaluationsPanel />}
         {view === "messages" && <Messages />}
         {view === "settings" && <Settings />}
 

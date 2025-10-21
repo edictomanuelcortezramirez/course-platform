@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Edit, HelpCircle } from "lucide-react";
 import DeleteButtonCourse from "../../src/components/DeleteButtonCourse";
+import EditButtonCourse from "@/src/components/EditButtonCourse";
 
 export default function TutorCourses() {
   const [courses, setCourses] = useState(null);
@@ -108,9 +109,8 @@ export default function TutorCourses() {
                 </p>
 
                 <div className="mt-4 flex gap-3">
-                  <button className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center text-white hover:bg-gray-700 transition">
-                    <Edit className="w-4 h-4" />
-                  </button>
+                  <EditButtonCourse courseId={course.id} />
+
                   <DeleteButtonCourse
                     courseId={course.id}
                     onDelete={(id) =>
