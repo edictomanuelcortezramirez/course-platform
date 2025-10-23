@@ -7,6 +7,7 @@ export default function CreateCourse({
   isEditing = false,
 }) {
   const [title, setTitle] = useState("");
+  const [shortDescription, setShortDescription] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [accessType, setAccessType] = useState("unlimited");
@@ -19,11 +20,12 @@ export default function CreateCourse({
   const [imagePreview, setImagePreview] = useState("");
   const [modules, setModules] = useState([]);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [whatYouWillLearn, setWhatYouWillLearn] = useState("");
 
-  // Cargar datos si se está editando
   useEffect(() => {
     if (existingCourse) {
       setTitle(existingCourse.title || "");
+      setShortDescription(existingCourse.shortDescription || ""); 
       setDescription(existingCourse.description || "");
       setPrice(existingCourse.price || "");
       setAccessType(existingCourse.accessType || "unlimited");
@@ -35,8 +37,8 @@ export default function CreateCourse({
         existingCourse.updateDate ? existingCourse.updateDate.split("T")[0] : ""
       );
       setImagePreview(existingCourse.image || "");
+      setWhatYouWillLearn(existingCourse.whatYouWillLearn || "");
 
-      // Map correcto de módulos y secciones
       const mappedModules = existingCourse.modules?.map((m) => ({
         id: m.id || Date.now() + Math.random(),
         name: m.title || "",
@@ -45,14 +47,29 @@ export default function CreateCourse({
           name: s.title || "",
           video: s.videoUrl || "",
           material: s.material || "",
+          duration: s.duration || "", 
         })) || [
-          { id: Date.now() + Math.random(), name: "", video: "", material: "" },
+          {
+            id: Date.now() + Math.random(),
+            name: "",
+            video: "",
+            material: "",
+            duration: "",
+          },
         ],
       })) || [
         {
           id: Date.now(),
           name: "",
-          sections: [{ id: Date.now() + 1, name: "", video: "", material: "" }],
+          sections: [
+            {
+              id: Date.now() + 1,
+              name: "",
+              video: "",
+              material: "",
+              duration: "",
+            },
+          ],
         },
       ];
 
@@ -62,13 +79,20 @@ export default function CreateCourse({
         {
           id: Date.now(),
           name: "",
-          sections: [{ id: Date.now() + 1, name: "", video: "", material: "" }],
+          sections: [
+            {
+              id: Date.now() + 1,
+              name: "",
+              video: "",
+              material: "",
+              duration: "",
+            },
+          ],
         },
       ]);
     }
   }, [existingCourse]);
 
-  // ➕ Funciones de manejo de módulos y secciones
   const addModule = () => {
     setModules([
       ...modules,
@@ -109,7 +133,6 @@ export default function CreateCourse({
     setModules(updatedModules);
   };
 
-  //Confirmación de envío
   const onConfirm = async () => {
     let imageBase64 = "";
 
@@ -128,10 +151,10 @@ export default function CreateCourse({
   const token =
     typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
-  //Envío al backend
   const sendCourse = async (imageData) => {
     const payload = {
       title,
+      shortDescription, 
       description,
       price: parseFloat(price) || 0,
       image: imageData || "",
@@ -142,6 +165,7 @@ export default function CreateCourse({
       isPaid,
       language,
       updateDate,
+      whatYouWillLearn,
     };
 
     try {
@@ -206,7 +230,38 @@ export default function CreateCourse({
             />
           </div>
 
-          {/* Descripción */}
+          {/* Descripción corta */}
+          <div className="flex flex-col">
+            <label className="text-sm font-medium text-gray-600">
+              Descripción corta
+            </label>
+            <textarea
+              placeholder="Agrega una breve descripción"
+              className={`mt-1 p-2 border rounded resize-none h-10 ${
+                shortDescription.length > 90
+                  ? "border-red-400"
+                  : "border-gray-300"
+              }`}
+              value={shortDescription}
+              onChange={(e) => {
+                if (e.target.value.length <= 90) {
+                  setShortDescription(e.target.value);
+                } else {
+                  setShortDescription(e.target.value.slice(0, 90));
+                }
+              }}
+            />
+            <span
+              className={`text-xs mt-1 ${
+                shortDescription.length >= 90 ? "text-red-500" : "text-gray-500"
+              }`}
+            >
+              {shortDescription.length}/90 caracteres
+              {shortDescription.length >= 90 && " (límite alcanzado)"}
+            </span>
+          </div>
+
+          {/* Descripción larga */}
           <div className="flex flex-col">
             <label className="text-sm font-medium text-gray-600">
               Descripción larga
@@ -307,7 +362,7 @@ export default function CreateCourse({
           {/* Imagen */}
           <div className="flex flex-col">
             <label className="text-sm font-medium text-gray-600">
-              Imagen de la card del curso
+              Imagen del curso
             </label>
             <input
               type="file"
@@ -324,7 +379,7 @@ export default function CreateCourse({
           {/* Precio */}
           <div className="flex flex-col">
             <label className="text-sm font-medium text-gray-600">
-              Precio individual del curso
+              Precio individual
             </label>
             <input
               type="number"
@@ -337,6 +392,20 @@ export default function CreateCourse({
             />
           </div>
         </form>
+
+        {/* Lo que aprenderás */}
+        <div className="mt-6">
+          <h4 className="text-md font-semibold text-gray-700 mb-2">
+            Lo que aprenderán
+          </h4>
+
+          <textarea
+            placeholder="Describe lo que aprenderán los estudiantes..."
+            className="w-full p-2 border border-gray-300 rounded resize-none"
+            value={whatYouWillLearn}
+            onChange={(e) => setWhatYouWillLearn(e.target.value)}
+          />
+        </div>
       </div>
 
       {/* Módulos y Secciones */}
@@ -344,7 +413,7 @@ export default function CreateCourse({
         {modules.map((module, moduleIndex) => (
           <div
             key={module.id}
-            className="relative p-6 bg-white rounded-2xl shadow-md w-[calc(33.333%-1rem)]"
+            className="relative p-4 bg-white rounded-2xl shadow-md w-[calc(33.333%-1rem)]"
           >
             {moduleIndex > 0 && (
               <button
@@ -423,7 +492,22 @@ export default function CreateCourse({
                         e.target.value
                       )
                     }
-                    className="p-2 border border-gray-300 rounded w-full"
+                    className="p-2 border border-gray-300 rounded w-[80%]"
+                  />
+                  <input
+                    type="number"
+                    placeholder="min"
+                    min="0"
+                    className="p-2 border border-gray-300 rounded w-[25%] text-center"
+                    value={section.duration || ""}
+                    onChange={(e) =>
+                      handleSectionChange(
+                        moduleIndex,
+                        sectionIndex,
+                        "duration",
+                        e.target.value
+                      )
+                    }
                   />
                 </div>
 

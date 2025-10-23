@@ -130,7 +130,7 @@ export default function CoursesPage() {
                   />
                   {/* Botón */}
                   <a
-                    href={`/courses/${course.id}`}
+                     href={`/courses/preview/${course.id}`}
                     className="absolute bottom-5 left-4 flex items-center gap-2 backdrop-blur-md bg-white/20 text-white text-sm pl-5 py-0 rounded-full border border-white/30 transition-all duration-300 group-hover:backdrop-blur-lg group-hover:bg-white/30 capitalize"
                   >
                     Saber más

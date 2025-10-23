@@ -8,17 +8,22 @@ export default async function handler(req, res) {
     try {
       const user = await getUserFromRequest(req);
       if (!user) return res.status(401).json({ error: "No autenticado" });
-      if (user.role !== "tutor") return res.status(403).json({ error: "Acceso denegado" });
+      if (user.role !== "tutor")
+        return res.status(403).json({ error: "Acceso denegado" });
 
       const courseId = parseInt(id);
-      const course = await prisma.course.findUnique({ where: { id: courseId } });
-      if (!course) return res.status(404).json({ error: "Curso no encontrado" });
+      const course = await prisma.course.findUnique({
+        where: { id: courseId },
+      });
+      if (!course)
+        return res.status(404).json({ error: "Curso no encontrado" });
       if (course.instructorId !== user.id)
         return res.status(403).json({ error: "No puedes editar este curso" });
 
       const {
         title,
         description,
+        shortDescription,
         price,
         image,
         modules,
@@ -28,6 +33,7 @@ export default async function handler(req, res) {
         isPaid,
         language,
         updateDate,
+        whatYouWillLearn,
       } = req.body;
 
       await prisma.section.deleteMany({ where: { module: { courseId } } });
@@ -37,6 +43,7 @@ export default async function handler(req, res) {
         where: { id: courseId },
         data: {
           title,
+          shortDescription: shortDescription || "",
           description,
           price,
           image,
@@ -46,6 +53,7 @@ export default async function handler(req, res) {
           isPaid,
           language,
           updateDate: updateDate ? new Date(updateDate) : null,
+          whatYouWillLearn: Array.isArray(whatYouWillLearn) ? whatYouWillLearn.join("\n") : whatYouWillLearn || "",
           modules: {
             create: (modules || []).map((m, i) => ({
               title: m.title || m.name || `Módulo ${i + 1}`,
@@ -56,6 +64,7 @@ export default async function handler(req, res) {
                   order: j + 1,
                   videoUrl: s.video ?? null,
                   material: s.material ?? null,
+                  duration: s.duration ? parseInt(s.duration) : null, // 👈 Nuevo
                 })),
               },
             })),
@@ -66,7 +75,9 @@ export default async function handler(req, res) {
 
       return res.status(200).json({ success: true, course: updatedCourse });
     } catch (err) {
-      return res.status(500).json({ error: "Error interno del servidor", details: err.message });
+      return res
+        .status(500)
+        .json({ error: "Error interno del servidor", details: err.message });
     }
   }
 
@@ -75,7 +86,8 @@ export default async function handler(req, res) {
       const user = await getUserFromRequest(req);
 
       if (!user) return res.status(401).json({ error: "No autenticado" });
-      if (user.role !== "tutor") return res.status(403).json({ error: "Acceso denegado" });
+      if (user.role !== "tutor")
+        return res.status(403).json({ error: "Acceso denegado" });
 
       const courseId = parseInt(id);
 
@@ -84,7 +96,8 @@ export default async function handler(req, res) {
         select: { id: true, instructorId: true },
       });
 
-      if (!course) return res.status(404).json({ error: "Curso no encontrado" });
+      if (!course)
+        return res.status(404).json({ error: "Curso no encontrado" });
       if (course.instructorId !== user.id)
         return res.status(403).json({ error: "No puedes eliminar este curso" });
 
@@ -122,7 +135,8 @@ export default async function handler(req, res) {
         },
       });
 
-      if (!course) return res.status(404).json({ error: "Curso no encontrado" });
+      if (!course)
+        return res.status(404).json({ error: "Curso no encontrado" });
 
       return res.status(200).json({ course });
     } catch (err) {

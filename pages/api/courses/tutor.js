@@ -24,20 +24,17 @@ export default async function handler(req, res) {
     
 
     const courses = await prisma.course.findMany({
-      where: { instructorId: user.id }, //revisa si en tu esquema es tutorId o userId
-      orderBy: { createdAt: "desc" },
-      select: {
-        id: true,
-        title: true,
-        description: true,
-        image: true,
-        price: true,
-        accessType: true,
-        hasCertificate: true,
-        hasEvaluation: true,
-        isPaid: true,
+  where: { instructorId: user.id },
+  orderBy: { createdAt: "desc" },
+  include: {
+    modules: {
+      include: {
+        sections: true,
       },
-    });
+    },
+  },
+});
+
 
     if (courses.length > 0) {
     }

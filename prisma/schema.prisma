@@ -26,6 +26,7 @@ model User {
 model Course {
   id            Int       @id @default(autoincrement())
   title         String
+  shortDescription String? 
   description   String?
   price         Float
   image         String?
@@ -39,7 +40,8 @@ model Course {
   modules     Module[]
   purchases   Purchase[]
   language       String?    
-  updateDate     DateTime?  
+  updateDate     DateTime? 
+  whatYouWillLearn  String? 
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 }
@@ -59,6 +61,7 @@ model Section {
   order     Int?
   videoUrl  String?   // enlace protegido o id de MUX en producción
   material  String?   // enlace a documento
+  duration  Int?      // minutos de duración del video
   moduleId  Int
   module    Module    @relation(fields: [moduleId], references: [id])
 }

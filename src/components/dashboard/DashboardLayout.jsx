@@ -9,6 +9,7 @@ import Certificates from "@/pages/views/Certificates";
 import Messages from "@/pages/views/Messages";
 import Support from "@/pages/views/Support";
 import TutorCourses from "@/pages/views/TutorCourses";
+import MyStudents from "@/pages/views/MyStudents";
 
 
 export default function DashboardLayout({ user }) {
@@ -20,7 +21,6 @@ export default function DashboardLayout({ user }) {
       <main className="flex-1 p-8 overflow-y-auto">
         
         {/* estudiante */}
-        {view === "evaluations" && <EvaluationsPanel />}
         {view === "my-courses" && <MyCourses />}
         {view === "certificates" && <Certificates />}
         {view === "messages" && <Messages />}
@@ -30,9 +30,7 @@ export default function DashboardLayout({ user }) {
         {view === "dashboard" && <TutorDashboard />}
         {view === "tutorcourses" && <TutorCourses />}
         {view === "createcourse" && <CreateCourse />}
-        {view === "uploadLessons" && <UploadLessons />}
-        {view === "studentReviews" && <EvaluationsPanel />}
-        {view === "messages" && <Messages />}
+        {view === "mystudents" && <MyStudents />}
         {view === "settings" && <Settings />}
 
         {/* administrador */}

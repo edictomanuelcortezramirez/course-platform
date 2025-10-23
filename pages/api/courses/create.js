@@ -14,6 +14,7 @@ export default async function handler(req, res) {
 
     const {
       title,
+      shortDescription,
       description,
       price,
       image,
@@ -24,6 +25,7 @@ export default async function handler(req, res) {
       isPaid,
       language,
       updateDate,
+      whatYouWillLearn,
     } = req.body;
 
     if (!title || !price) {
@@ -41,6 +43,7 @@ export default async function handler(req, res) {
           order: j + 1,
           videoUrl: s.video ?? null,
           material: s.material ?? null,
+          duration: s.duration ? parseInt(s.duration) : null, // 👈 Nuevo
         })),
       },
     }));
@@ -48,6 +51,7 @@ export default async function handler(req, res) {
     const course = await prisma.course.create({
       data: {
         title,
+        shortDescription: shortDescription || "", 
         description,
         price: parseFloat(price),
         image,
@@ -59,6 +63,7 @@ export default async function handler(req, res) {
         isPublished: true,
         language,
         updateDate: updateDate ? new Date(updateDate) : null,
+        whatYouWillLearn: Array.isArray(whatYouWillLearn) ? whatYouWillLearn.join("\n") : whatYouWillLearn || "",
         modules: {
           create: formattedModules,
         },
@@ -68,6 +73,7 @@ export default async function handler(req, res) {
 
     return res.status(200).json({ success: true, course });
   } catch (err) {
+    console.error("Error al crear curso:", err);
     return res
       .status(500)
       .json({ error: "Error interno del servidor", details: err.message });
